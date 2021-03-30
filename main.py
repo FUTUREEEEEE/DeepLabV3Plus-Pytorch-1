@@ -27,7 +27,7 @@ def get_argparser():
     parser = argparse.ArgumentParser()
 
     # tang Option 
-     parser.add_argument("--ckpt_dir", type=str, default='/content/ckpt'
+    parser.add_argument("--ckpt_dir", type=str, default='/content/ckpt'
                          , help='save to drive')
     
     # Datset Options
@@ -359,6 +359,8 @@ def main():
 
             np_loss = loss.detach().cpu().numpy()
             interval_loss += np_loss
+
+            tblogger.add_scalar('loss', np_loss, cur_itrs)
             if vis is not None:
                 vis.vis_scalar('Loss', cur_itrs, np_loss)
 
@@ -381,12 +383,12 @@ def main():
                     save_ckpt('checkpoints/best_%s_%s_os%d.pth' %
                               (opts.model, opts.dataset,opts.output_stride))
                     #save to dirve
-                os.system("cp -f /content/checkpoints/* "+ opts.ckpt_dir)+"/pth/")
+                os.system("cp -f /content/checkpoints/* "+ opts.ckpt_dir+"/pth/")
                 os.system("cp -f /content/log/* "+ opts.ckpt_dir+"/log/")
                 print("saving /content/checkpoints/* /content/log/* to :"+ opts.ckpt_dir)
                 
                 tblogger.add_scalar('Miou', val_score['Mean IoU'], cur_itrs)
-                tblogger.add_scalar('loss', np_loss, cur_itrs)        
+                        
                 
                 
                 if vis is not None:  # visualize validation score and samples
