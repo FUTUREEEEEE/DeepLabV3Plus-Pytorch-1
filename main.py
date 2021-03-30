@@ -406,6 +406,8 @@ def main():
             scheduler.step()  
 
             if cur_itrs >=  opts.total_itrs:
+                os.system("cp -f /content/checkpoints/* "+ opts.ckpt_dir+"/pth/")
+                os.system("cp -f /content/log/* "+ opts.ckpt_dir+"/log/")
                 return
 
         
