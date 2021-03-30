@@ -21,11 +21,15 @@ import matplotlib.pyplot as plt
 
 from tensorboardX import SummaryWriter
 
-tblogger = SummaryWriter("/content/log")
+
 
 def get_argparser():
     parser = argparse.ArgumentParser()
 
+    # tang Option 
+     parser.add_argument("--ckpt_dir", type=str, default='/content/ckpt'
+                         , help='save to drive')
+    
     # Datset Options
     parser.add_argument("--data_root", type=str, default='./datasets/data',
                         help="path to Dataset")
@@ -211,6 +215,14 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
 
 def main():
     opts = get_argparser().parse_args()
+    
+    #set up saving dir
+    os.system("mkdir -p "+opts.ckpt_dir+"/pth/")
+    os.system("mkdir -p "+opts.ckpt_dir+"/log/")
+        
+    print("mkdir "+opts.ckpt_dir)
+    tblogger = SummaryWriter("/content/log")
+    
     if opts.dataset.lower() == 'voc':
         opts.num_classes = 21
     elif opts.dataset.lower() == 'cityscapes':
@@ -368,7 +380,11 @@ def main():
                     best_score = val_score['Mean IoU']
                     save_ckpt('checkpoints/best_%s_%s_os%d.pth' %
                               (opts.model, opts.dataset,opts.output_stride))
-                				
+                    #save to dirve
+                os.system("cp -f /content/checkpoints/* "+ opts.ckpt_dir)+"/pth/")
+                os.system("cp -f /content/log/* "+ opts.ckpt_dir+"/log/")
+                print("saving /content/checkpoints/* /content/log/* to :"+ opts.ckpt_dir)
+                
                 tblogger.add_scalar('Miou', val_score['Mean IoU'], cur_itrs)
                 tblogger.add_scalar('loss', np_loss, cur_itrs)        
                 
