@@ -19,6 +19,9 @@ from PIL import Image
 import matplotlib
 import matplotlib.pyplot as plt
 
+from tensorboardX import SummaryWriter
+
+tblogger = SummaryWriter("/content/log")
 
 def get_argparser():
     parser = argparse.ArgumentParser()
@@ -365,7 +368,11 @@ def main():
                     best_score = val_score['Mean IoU']
                     save_ckpt('checkpoints/best_%s_%s_os%d.pth' %
                               (opts.model, opts.dataset,opts.output_stride))
-
+                				
+                tblogger.add_scalar('Miou', val_score['Mean IoU'], cur_itrs)
+                tblogger.add_scalar('loss', np_loss, cur_itrs)        
+                
+                
                 if vis is not None:  # visualize validation score and samples
                     vis.vis_scalar("[Val] Overall Acc", cur_itrs, val_score['Overall Acc'])
                     vis.vis_scalar("[Val] Mean IoU", cur_itrs, val_score['Mean IoU'])
