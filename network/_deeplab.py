@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from netwrok.myCBAM import myCBAM
+from network.myCBAM import myCBAM
 
 from .utils import _SimpleSegmentationModel
 
@@ -136,10 +136,10 @@ class ASPP(nn.Module):
         super(ASPP, self).__init__()
         out_channels = 256
         modules = []
-        modules.append(nn.Sequential(
+        self.ASPP0=nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 1, bias=False),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)))
+            nn.ReLU(inplace=True))
 
         rate1, rate2, rate3 = tuple(atrous_rates)
         self.ASPP1=ASPPConv(in_channels, out_channels, rate1)
@@ -162,6 +162,9 @@ class ASPP(nn.Module):
 
     def forward(self, x):
         res = []
+        #在三个空洞卷积分支加入channel wise的attention block
+        branch0=self.ASPP0(x)
+        
         branch1=self.ASPP1(x)
         branch1=self.CBAM1(branch1)
         
@@ -173,7 +176,7 @@ class ASPP(nn.Module):
         
         branch4=self.ASPPPooling(x)
 
-        res = torch.cat(branch1,branch2,branch3,branch4, dim=1)
+        res = torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
         
         return self.project(res)
 
