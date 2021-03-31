@@ -7,6 +7,7 @@ from .utils import _SimpleSegmentationModel
 
 __all__ = ["DeepLabV3"]
 
+from network.myCC import RCCAModule
 
 class DeepLabV3(_SimpleSegmentationModel):
     """
@@ -35,6 +36,8 @@ class DeepLabHeadV3Plus(nn.Module):
         )
 
         self.aspp = ASPP(in_channels, aspp_dilate)
+        
+        self.RCCA=RCCAModule()  #输出channel是输入的1/4
 
         self.classifier = nn.Sequential(
             nn.Conv2d(304, 256, 3, padding=1, bias=False),
@@ -46,6 +49,9 @@ class DeepLabHeadV3Plus(nn.Module):
 
     def forward(self, feature):
         low_level_feature = self.project( feature['low_level'] )
+        
+        low_level_feature=self.RCCA(low_level_feature)
+        
         output_feature = self.aspp(feature['out'])
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
         return self.classifier( torch.cat( [ low_level_feature, output_feature ], dim=1 ) )
