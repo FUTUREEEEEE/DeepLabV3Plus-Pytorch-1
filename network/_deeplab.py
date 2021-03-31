@@ -52,7 +52,7 @@ class DeepLabHeadV3Plus(nn.Module):
         )
         self._init_weight()
         
-        self.project = nn.Sequential(
+        self.project_aspp = nn.Sequential(
             nn.Conv2d(5 * 256, 256, 1, bias=False),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
@@ -70,7 +70,7 @@ class DeepLabHeadV3Plus(nn.Module):
         branch3=self.CAM3(branch3)
         
         output_feature=torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
-        output_feature= self.project(output_feature)
+        output_feature= self.project_aspp(output_feature)
         
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
         return self.classifier( torch.cat( [ low_level_feature, output_feature ], dim=1 ) )
