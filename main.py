@@ -29,6 +29,9 @@ def get_argparser():
     # tang Option 
     parser.add_argument("--ckpt_dir", type=str, default='/content/ckpt'
                          , help='save to drive')
+    parser.add_argument("--myft", action='store_true', default=False)
+    parser.add_argument("--myft_dir", default=None, type=str,
+                        help="restore from checkpoint")
     
     # Datset Options
     parser.add_argument("--data_root", type=str, default='./datasets/data',
@@ -37,7 +40,7 @@ def get_argparser():
                         choices=['voc', 'cityscapes'], help='Name of dataset')
     parser.add_argument("--num_classes", type=int, default=None,
                         help="num classes (default: None)")
-
+    
     # Deeplab Options
     parser.add_argument("--model", type=str, default='deeplabv3plus_mobilenet',
                         choices=['deeplabv3_resnet50',  'deeplabv3plus_resnet50',
@@ -325,6 +328,15 @@ def main():
         del checkpoint  # free memory
     else:
         print("[!] Retrain")
+        
+
+        if opts.myft:
+          checkpoint = torch.load(opts.myft_dir, map_location=torch.device('cpu'))
+          model.load_state_dict(checkpoint["model_state"])
+          cur_itrs = checkpoint["cur_itrs"]
+          print("my pretrained from"+ opts.myft_dir)
+            
+            
         model = nn.DataParallel(model)
         model.to(device)
 
