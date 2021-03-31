@@ -30,8 +30,8 @@ class DeepLabHeadV3Plus(nn.Module):
     def __init__(self, in_channels, low_level_channels, num_classes, aspp_dilate=[12, 24, 36]):
         super(DeepLabHeadV3Plus, self).__init__()
         self.project = nn.Sequential( 
-            nn.Conv2d(low_level_channels, 48, 1, bias=False),
-            nn.BatchNorm2d(48),
+            nn.Conv2d(low_level_channels, 192, 1, bias=False),
+            nn.BatchNorm2d(192),
             nn.ReLU(inplace=True),
         )
 
