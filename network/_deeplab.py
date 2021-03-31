@@ -37,7 +37,7 @@ class DeepLabHeadV3Plus(nn.Module):
 
         self.aspp = ASPP(in_channels, aspp_dilate)
         
-        self.RCCA=RCCAModule()  #输出channel是输入的1/4
+        self.RCCA=RCCAModule(in_channels=192,out_channels=48,num_classes=19)  #输出channel是输入的1/4
 
         self.classifier = nn.Sequential(
             nn.Conv2d(304, 256, 3, padding=1, bias=False),

@@ -70,7 +70,7 @@ class RCCAModule(nn.Module):
             nn.Conv2d(in_channels+inter_channels, out_channels, kernel_size=3, padding=1, dilation=1, bias=False),
             InPlaceABNSync(out_channels),
             nn.Dropout2d(0.1),
-            nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True)
+            #nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True)
             )
 
     def forward(self, x, recurrence=1):
@@ -78,6 +78,7 @@ class RCCAModule(nn.Module):
         for i in range(recurrence):
             output = self.cca(output)
         output = self.convb(output)
-
+        #print(output.size())
+        #print(x.size())
         output = self.bottleneck(torch.cat([x, output], 1))
         return output
