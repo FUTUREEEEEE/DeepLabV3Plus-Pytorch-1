@@ -73,7 +73,7 @@ class RCCAModule(nn.Module):
             #nn.Conv2d(512, num_classes, kernel_size=1, stride=1, padding=0, bias=True)
             )
 
-    def forward(self, x, recurrence=1):
+    def forward(self, x, recurrence=2):
         output = self.conva(x)
         for i in range(recurrence):
             output = self.cca(output)
