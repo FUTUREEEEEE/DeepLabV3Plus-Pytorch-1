@@ -40,7 +40,8 @@ class DeepLabHeadV3Plus(nn.Module):
         self.RCCA=RCCAModule(in_channels=192,out_channels=48,num_classes=19)  #输出channel是输入的1/4
 
         self.classifier = nn.Sequential(
-            nn.Conv2d(304, 256, 3, padding=1, bias=False),
+            nn.Conv2d(304, 256, 1, padding=1, bias=False),  #channel attention
+            nn.Conv2d(256, 256, 3, padding=1, bias=False),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
             nn.Conv2d(256, num_classes, 1)
