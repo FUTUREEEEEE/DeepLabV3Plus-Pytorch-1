@@ -17,7 +17,7 @@ class CAM_Module(Module):
 
         self.gamma = Parameter(torch.zeros(1))
         self.softmax  = Softmax(dim=-1)
-    def forward(self,x):
+    def forward(self,x,low_level_feature):
         """
             inputs :
                 x : input feature maps( B X C X H X W)
@@ -26,15 +26,18 @@ class CAM_Module(Module):
                 attention: B X C X C
         """
         m_batchsize, C, height, width = x.size()
-        proj_query = x.view(m_batchsize, C, -1)
-        proj_key = x.view(m_batchsize, C, -1).permute(0, 2, 1)
+        proj_query = low_level_feature.view(m_batchsize, C, -1)
+        proj_key = low_level_feature.view(m_batchsize, C, -1).permute(0, 2, 1)
         energy = torch.bmm(proj_query, proj_key)
         energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy_new)
+        
+        
         proj_value = x.view(m_batchsize, C, -1)
 
         out = torch.bmm(attention, proj_value)
         out = out.view(m_batchsize, C, height, width)
 
         out = self.gamma*out + x
-        return out
+        return out 
+    

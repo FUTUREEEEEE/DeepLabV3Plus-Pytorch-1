@@ -39,17 +39,19 @@ class DeepLabHeadV3Plus(nn.Module):
 
         self.aspp = ASPP(in_channels, aspp_dilate)
         
+        #CAM模块配置
         self.CAM1=CAM_Module(256)
         self.CAM2=CAM_Module(256)
         self.CAM3=CAM_Module(256)
         self.CAM0=CAM_Module(256)
 
+
         self.classifier = nn.Sequential(
             nn.Conv2d(304, 256, 3, padding=1, bias=False),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
-            nn.Conv2d(256, num_classes, 1)
-        )
+            nn.Conv2d(256, num_classes, 1))
+        
         self._init_weight()
         
         self.project_aspp = nn.Sequential(
@@ -63,11 +65,21 @@ class DeepLabHeadV3Plus(nn.Module):
         
         branch0,branch1,branch2,branch3,branch4 = self.aspp(feature['out'])
         
-        #除了ASPPpooling 其余分支均加入CAM
-        branch0=self.CAM0(branch0)
-        branch1=self.CAM1(branch1)
-        branch2=self.CAM2(branch2)
-        branch3=self.CAM3(branch3)
+        
+        #除了ASPPpooling 其余分支均加入CAM  branchx_CAM=B*256*256
+        branch0_CAM=self.CAM0(branch0,feature['low_level'])
+        branch1_CAM=self.CAM1(branch1,feature['low_level'])
+        branch2_CAM=self.CAM2(branch2,feature['low_level'])
+        branch3_CAM=self.CAM3(branch3,feature['low_level'])
+        
+        # proj_value0 = branch0.view(m_batchsize, C, -1)
+        # branch0_out = torch.bmm(branch0_CAM, proj_value0)
+        # branch0_out = branch0_out.view(m_batchsize, C, height, width)
+        # branch0_out = self.gamma0*branch0_out + branch0
+        
+
+        
+
         
         output_feature=torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
         output_feature= self.project_aspp(output_feature)
