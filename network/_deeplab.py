@@ -81,7 +81,7 @@ class DeepLabHeadV3Plus(nn.Module):
         
 
         
-        output_feature=torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
+        output_feature=torch.cat((branch0_CAM,branch1_CAM,branch2_CAM,branch3_CAM,branch4), dim=1)
         output_feature= self.project_aspp(output_feature)
         
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
