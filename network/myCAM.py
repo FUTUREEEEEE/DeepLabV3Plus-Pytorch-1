@@ -15,7 +15,7 @@ class CAM_Module(Module):
         self.chanel_in = in_dim
 
 
-        self.gamma = Parameter(torch.zeros(1))
+        self.gamma = Parameter(torch.rand(1))
         self.softmax  = Softmax(dim=-1)
     def forward(self,x,low_level_feature):
         """
