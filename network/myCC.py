@@ -28,7 +28,7 @@ class CrissCrossAttention(nn.Module):
         self.value_conv = nn.Conv2d(in_channels=in_dim, out_channels=in_dim, kernel_size=1)
         self.softmax = Softmax(dim=3)
         self.INF = INF
-        self.gamma = nn.Parameter(torch.zeros(1))
+        self.gamma = nn.Parameter(torch.rand(1))
 
 
     def forward(self, x):
