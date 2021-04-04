@@ -39,12 +39,9 @@ class DeepLabHeadV3Plus(nn.Module):
 
         self.aspp = ASPP(in_channels, aspp_dilate)
         
-        #CAM模块配置
-        self.CAM1=CAM_Module(256)
-        self.CAM2=CAM_Module(256)
-        self.CAM3=CAM_Module(256)
-        self.CAM0=CAM_Module(256)
-
+        self.aspp_low = ASPP(256,aspp_dilate)
+    
+        self.myCAM=CAM_Module(304)
 
         self.classifier = nn.Sequential(
             nn.Conv2d(304, 256, 3, padding=1, bias=False),
@@ -54,38 +51,19 @@ class DeepLabHeadV3Plus(nn.Module):
         
         self._init_weight()
         
-        self.project_aspp = nn.Sequential(
-            nn.Conv2d(5 * 256, 256, 1, bias=False),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.1),)
+
+        
 
     def forward(self, feature):
         low_level_feature = self.project( feature['low_level'] )
+        low_level_feature=self.aspp_low(low_level_feature)
         
-        branch0,branch1,branch2,branch3,branch4 = self.aspp(feature['out'])
         
-        
-        #除了ASPPpooling 其余分支均加入CAM  branchx_CAM=B*256*256
-        branch0_CAM=self.CAM0(branch0,feature['low_level'])
-        branch1_CAM=self.CAM1(branch1,feature['low_level'])
-        branch2_CAM=self.CAM2(branch2,feature['low_level'])
-        branch3_CAM=self.CAM3(branch3,feature['low_level'])
-        
-        # proj_value0 = branch0.view(m_batchsize, C, -1)
-        # branch0_out = torch.bmm(branch0_CAM, proj_value0)
-        # branch0_out = branch0_out.view(m_batchsize, C, height, width)
-        # branch0_out = self.gamma0*branch0_out + branch0
-        
-
-        
-
-        
-        output_feature=torch.cat((branch0_CAM,branch1_CAM,branch2_CAM,branch3_CAM,branch4), dim=1)
-        output_feature= self.project_aspp(output_feature)
-        
+        output_feature = self.aspp(feature['out'])
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
-        return self.classifier( torch.cat( [ low_level_feature, output_feature ], dim=1 ) )
+        
+        out=self.myCAM(torch.cat( [ low_level_feature, output_feature ], dim=1 ))
+        return self.classifier(out)
     
     def _init_weight(self):
         for m in self.modules():
@@ -212,9 +190,9 @@ class ASPP(nn.Module):
         
         branch4=self.ASPPPooling(x)
 
-        #res = torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
+        res = torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
         
-        return branch0,branch1,branch2,branch3,branch4#self.project(res)
+        return self.project(res)
 
 
 
