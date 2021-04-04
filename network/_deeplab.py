@@ -55,8 +55,8 @@ class DeepLabHeadV3Plus(nn.Module):
         
 
     def forward(self, feature):
-        low_level_feature = self.project( feature['low_level'] )
-        low_level_feature=self.aspp_low(low_level_feature)
+        low_level_feature = self.aspp_low( feature['low_level'] )
+        low_level_feature=self.project(low_level_feature)
         
         
         output_feature = self.aspp(feature['out'])
