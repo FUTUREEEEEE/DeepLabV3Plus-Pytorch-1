@@ -15,6 +15,9 @@ class FPN_Module(nn.Module):
     ('low_level', 1/4 torch.Size([1, 256, 128, 128])), ('feat2', 1/8 torch.Size([1, 512, 64, 64])), 
     ('feat3', 1/16 torch.Size([1, 1024, 32, 32])), ('out', torch.Size([1, 2048, 32, 32]))
     
+    
+    V2:nn.Conv2d(1024, 512, 3,padding=1, bias=False),
+    
     """
     def __init__(self):
         super(FPN_Module, self).__init__()
@@ -27,13 +30,13 @@ class FPN_Module(nn.Module):
         
         
         self.convfeat3 = nn.Sequential( 
-            nn.Conv2d(1024, 512, 1, bias=False),
+            nn.Conv2d(1024, 512, 3,padding=1, bias=False),
             nn.BatchNorm2d(512),
             nn.ReLU(inplace=True)
         )
         
         self.convfeat2= nn.Sequential( 
-            nn.Conv2d(512, 256, 1, bias=False),
+            nn.Conv2d(512, 256, 3, padding=1,bias=False),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True)
         )
