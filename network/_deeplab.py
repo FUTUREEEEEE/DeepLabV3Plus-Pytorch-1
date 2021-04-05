@@ -4,7 +4,7 @@ from torch.nn import functional as F
 
 from .utils import _SimpleSegmentationModel
 
-from network import FPN_Module
+from network.myFPN import FPN_Module
 
 __all__ = ["DeepLabV3"]
 
