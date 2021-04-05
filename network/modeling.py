@@ -2,6 +2,7 @@ from .utils import IntermediateLayerGetter
 from ._deeplab import DeepLabHead, DeepLabHeadV3Plus, DeepLabV3
 from .backbone import resnet
 from .backbone import mobilenetv2
+import torch
 
 def _segm_resnet(name, backbone_name, num_classes, output_stride, pretrained_backbone):
 
@@ -20,13 +21,19 @@ def _segm_resnet(name, backbone_name, num_classes, output_stride, pretrained_bac
     low_level_planes = 256
 
     if name=='deeplabv3plus':
-        return_layers = {'layer4': 'out', 'layer1': 'low_level'}
+        return_layers = {'layer4': 'out', 'layer1': 'low_level','layer2': 'feat2','layer3': 'feat3'}
         classifier = DeepLabHeadV3Plus(inplanes, low_level_planes, num_classes, aspp_dilate)
     elif name=='deeplabv3':
         return_layers = {'layer4': 'out'}
         classifier = DeepLabHead(inplanes , num_classes, aspp_dilate)
-    backbone = IntermediateLayerGetter(backbone, return_layers=return_layers)
-
+    backbone = IntermediateLayerGetter(backbone, return_layers=return_layers)  #获取低层级特征
+    
+    
+    #检查中间层
+    out = backbone(torch.rand(1, 3, 512, 512))
+    print([(k, v.shape) for k, v in out.items()])
+    
+    
     model = DeepLabV3(backbone, classifier)
     return model
 
