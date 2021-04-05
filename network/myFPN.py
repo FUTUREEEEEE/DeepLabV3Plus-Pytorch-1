@@ -27,13 +27,13 @@ class FPN_Module(nn.Module):
         
         
         self.convfeat3 = nn.Sequential( 
-            nn.Conv2d(1024, 512, 3, padding=1, bias=False),
+            nn.Conv2d(1024, 512, 1, padding=1, bias=False),
             nn.BatchNorm2d(512),
             nn.ReLU(inplace=True)
         )
         
         self.convfeat2= nn.Sequential( 
-            nn.Conv2d(512, 256, 3, padding=1,bias=False),
+            nn.Conv2d(512, 256, 1, padding=1,bias=False),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True)
         )
