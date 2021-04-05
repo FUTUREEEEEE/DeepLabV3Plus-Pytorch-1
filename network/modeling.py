@@ -30,9 +30,16 @@ def _segm_resnet(name, backbone_name, num_classes, output_stride, pretrained_bac
     
     
     #检查中间层
-    out = backbone(torch.rand(1, 3, 512, 512))
-    print([(k, v.shape) for k, v in out.items()])
+    # out = backbone(torch.rand(1, 3, 512, 512))
     
+    # print([(k, v.shape) for k, v in out.items()])
+    #('low_level', 1/4 torch.Size([1, 256, 128, 128])), ('feat2', 1/8 torch.Size([1, 512, 64, 64])), 
+    #('feat3', 1/16 torch.Size([1, 1024, 32, 32])), ('out', torch.Size([1, 2048, 32, 32]))
+    
+    #out put stride =8
+    #[('low_level', torch.Size([1, 256, 128, 128])), ('feat2', torch.Size([1, 512, 64, 64])),
+    #('feat3', torch.Size([1, 1024, 64, 64])), ('out', torch.Size([1, 2048, 64, 64]))]
+
     
     model = DeepLabV3(backbone, classifier)
     return model
