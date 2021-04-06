@@ -171,6 +171,55 @@ class ASPP(nn.Module):
             res.append(conv(x))
         res = torch.cat(res, dim=1)
         return self.project(res)
+        
+# class ASPP(nn.Module):
+#     def __init__(self, in_channels, atrous_rates):
+#         super(ASPP, self).__init__()
+#         out_channels = 256
+#         modules = []
+#         self.ASPP0=nn.Sequential(
+#             nn.Conv2d(in_channels, out_channels, 1, bias=False),
+#             nn.BatchNorm2d(out_channels),
+#             nn.ReLU(inplace=True))
+
+#         rate1, rate2, rate3 = tuple(atrous_rates)
+#         self.ASPP1=ASPPConv(in_channels, out_channels, rate1)
+#         self.ASPP2=ASPPConv(in_channels, out_channels, rate2)
+#         self.ASPP3=ASPPConv(in_channels, out_channels, rate3)
+        
+#         # self.CBAM1=myCBAM()
+#         # self.CBAM2=myCBAM()
+#         # self.CBAM3=myCBAM()
+        
+#         self.ASPPPooling=ASPPPooling(in_channels, out_channels)
+
+#         self.convs = nn.ModuleList(modules)
+
+#         self.project = nn.Sequential(
+#             nn.Conv2d(5 * 256, 256, 1, bias=False),
+#             nn.BatchNorm2d(256),
+#             nn.ReLU(inplace=True),
+#             nn.Dropout(0.1),)
+
+#     def forward(self, x):
+#         res = []
+       
+#         branch0=self.ASPP0(x)
+        
+#         branch1=self.ASPP1(x)
+#         #branch1=self.CBAM1(branch1)
+        
+#         branch2=self.ASPP2(x)
+#         #branch2=self.CBAM1(branch2)
+        
+#         branch3=self.ASPP3(x)
+#         #branch3=self.CBAM1(branch3)
+        
+#         branch4=self.ASPPPooling(x)
+
+#         #res = torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
+        
+#         return branch0,branch1,branch2,branch3,branch4#self.project(res)
 
 
 
