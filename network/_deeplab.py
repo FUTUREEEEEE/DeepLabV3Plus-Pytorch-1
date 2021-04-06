@@ -169,10 +169,10 @@ class ASPP(nn.Module):
         branch1=self.CBAM1(branch1)
         
         branch2=self.ASPP2(x)
-        branch2=self.CBAM1(branch2)
+        branch2=self.CBAM2(branch2)
         
         branch3=self.ASPP3(x)
-        branch3=self.CBAM1(branch3)
+        branch3=self.CBAM3(branch3)
         
         branch4=self.ASPPPooling(x)
 
