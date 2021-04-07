@@ -3,7 +3,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from net.mysp_att import SpatialGate
+from network.mysp_att import SpatialGate
 
 class FPN_Module(nn.Module):
 
