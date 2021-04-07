@@ -6,6 +6,7 @@ from .utils import _SimpleSegmentationModel
 
 from network.myFPN import FPN_Module
 from network.myCAM import CAM_Module
+from network.myCBAM import myCBAM
 
 __all__ = ["DeepLabV3"]
 
@@ -156,9 +157,12 @@ class ASPP(nn.Module):
         self.ASPP2=ASPPConv(in_channels, out_channels, rate2)
         self.ASPP3=ASPPConv(in_channels, out_channels, rate3)
         
-        self.CAM1=CAM_Module(256)
-        self.CAM2=CAM_Module(256)
-        self.CAM3=CAM_Module(256)
+        # self.CAM1=CAM_Module(256)
+        # self.CAM2=CAM_Module(256)
+        # self.CAM3=CAM_Module(256)
+        self.CBAM1=myCBAM()
+        self.CBAM2=myCBAM()
+        self.CBAM3=myCBAM()
         
         self.ASPPPooling=ASPPPooling(in_channels, out_channels)
 
@@ -175,13 +179,13 @@ class ASPP(nn.Module):
         branch0=self.ASPP0(x)
         
         branch1=self.ASPP1(x)
-        branch1=self.CAM1(branch1)
+        branch1=self.CBAM1(branch1)
         
         branch2=self.ASPP2(x)
-        branch2=self.CAM2(branch2)
+        branch2=self.CBAM2(branch2)
         
         branch3=self.ASPP3(x)
-        branch3=self.CAM3(branch3)
+        branch3=self.CBAM3(branch3)
         
         branch4=self.ASPPPooling(x)
 
