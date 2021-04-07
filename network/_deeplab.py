@@ -160,6 +160,7 @@ class ASPP(nn.Module):
         # self.CAM1=CAM_Module(256)
         # self.CAM2=CAM_Module(256)
         # self.CAM3=CAM_Module(256)
+        self.CBAM0=myCBAM()
         self.CBAM1=myCBAM()
         self.CBAM2=myCBAM()
         self.CBAM3=myCBAM()
@@ -177,6 +178,7 @@ class ASPP(nn.Module):
         res = []
        
         branch0=self.ASPP0(x)
+        branch0=self.CBAM0(branch0)
         
         branch1=self.ASPP1(x)
         branch1=self.CBAM1(branch1)
