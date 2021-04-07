@@ -3,6 +3,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+from net.mysp_att import SpatialGate
 
 class FPN_Module(nn.Module):
 
@@ -38,21 +39,26 @@ class FPN_Module(nn.Module):
             nn.ReLU(inplace=True)
         )
         
+        self.spatt1=SpatialGate()
+        self.spatt2=SpatialGate()
+        self.spatt3=SpatialGate()
+        
         
         
     def forward(self,feature):
         
         feat3=F.interpolate(feature['feat3'], scale_factor=2, mode='bilinear', align_corners=False)
         feat3=self.convfeat3(feat3)
+        feat3=self.spatt3(feat3)
         
         feat2=feature['feat2'] +feat3
         feat2=F.interpolate(feat2, scale_factor=2, mode='bilinear', align_corners=False)
         feat2=self.convfeat2(feat2)
-        
+        feat2=self.spatt2(feat2)
         
         feat1=feature['low_level']+feat2
         feat1=self.project(feat1)
-        
+        feat1=self.spatt1(feat1)
 
     
         
