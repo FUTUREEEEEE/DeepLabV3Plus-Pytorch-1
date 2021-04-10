@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from network.myCBAM import myCBAM
+from network.myGAU import GAU
 
 from .utils import _SimpleSegmentationModel
 
@@ -47,7 +47,7 @@ class DeepLabHeadV3Plus(nn.Module):
 
     def forward(self, feature):
         low_level_feature = self.project( feature['low_level'] )
-        output_feature = self.aspp(feature['out'])
+        output_feature = self.aspp(feature['out'],feature['low_level'])
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
         return self.classifier( torch.cat( [ low_level_feature, output_feature ], dim=1 ) )
     
@@ -146,9 +146,9 @@ class ASPP(nn.Module):
         self.ASPP2=ASPPConv(in_channels, out_channels, rate2)
         self.ASPP3=ASPPConv(in_channels, out_channels, rate3)
         
-        self.CBAM1=myCBAM()
-        self.CBAM2=myCBAM()
-        self.CBAM3=myCBAM()
+        # self.CBAM1=myCBAM()
+        # self.CBAM2=myCBAM()
+        # self.CBAM3=myCBAM()
         
         self.ASPPPooling=ASPPPooling(in_channels, out_channels)
 
@@ -160,19 +160,19 @@ class ASPP(nn.Module):
             nn.ReLU(inplace=True),
             nn.Dropout(0.1),)
 
-    def forward(self, x):
+    def forward(self, x,low_level_feature):
         res = []
         #在三个空洞卷积分支加入channel wise的attention block
         branch0=self.ASPP0(x)
         
         branch1=self.ASPP1(x)
-        branch1=self.CBAM1(branch1)
+
         
         branch2=self.ASPP2(x)
-        branch2=self.CBAM2(branch2)
+
         
         branch3=self.ASPP3(x)
-        branch3=self.CBAM3(branch3)
+
         
         branch4=self.ASPPPooling(x)
 
