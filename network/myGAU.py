@@ -2,16 +2,16 @@
 import torch.nn as nn
 
 class GAU(nn.Module):
-    def __init__(self, channels_high, channels_low, upsample=True):
+    def __init__(self):
         super(GAU, self).__init__()
         # Global Attention Upsample
         #self.upsample = upsample
         # self.conv3x3 = nn.Conv2d(channels_low, channels_low, kernel_size=3, padding=1, bias=False)
         # self.bn_low = nn.BatchNorm2d(channels_low)
 
-        self.conv1x1 = nn.Conv2d(channels_high, channels_low, kernel_size=1, padding=0, bias=False)
-        self.bn_high = nn.BatchNorm2d(channels_low)
-        
+        self.conv1x1 = nn.Conv2d(256, 256, kernel_size=1, padding=0, bias=False)
+        self.bn_high = nn.BatchNorm2d(256)
+        self.relu = nn.ReLU(inplace=True)
         
         # if upsample:
         #     self.conv_upsample = nn.ConvTranspose2d(channels_high, channels_low, kernel_size=4, stride=2, padding=1, bias=False)
