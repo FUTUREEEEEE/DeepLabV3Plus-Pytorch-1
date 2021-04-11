@@ -381,6 +381,7 @@ def main():
                 print("Epoch %d, Itrs %d/%d, Loss=%f" %
                       (cur_epochs, cur_itrs, opts.total_itrs, interval_loss))
                 interval_loss = 0.0
+                
 
             if (cur_itrs) % opts.val_interval == 0:
                 save_ckpt('checkpoints/latest_%s_%s_os%d.pth' %
@@ -394,6 +395,7 @@ def main():
                     best_score = val_score['Mean IoU']
                     save_ckpt('checkpoints/best_%s_%s_os%d.pth' %
                               (opts.model, opts.dataset,opts.output_stride))
+                    print( "lr: " "%.10f" % (optimizer.state_dict()['param_groups'][0]['lr']))
                     #save to dirve
                 os.system("cp -f /content/checkpoints/* "+ opts.ckpt_dir+"/pth/")
                 os.system("cp -f /content/log/* "+ opts.ckpt_dir+"/log/")
