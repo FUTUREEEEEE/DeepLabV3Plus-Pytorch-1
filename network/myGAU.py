@@ -37,7 +37,7 @@ class GAU(nn.Module):
         x = self.conv1x1(x)
         x = self.bn_high(x)
         out = self.relu(x)
-
+            
         # fms_low_mask = torch.cat([fms_low, fm_mask], dim=1)
         # fms_low_mask = self.conv3x3(fms_low)
         # fms_low_mask = self.bn_low(fms_low_mask)

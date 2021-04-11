@@ -146,9 +146,11 @@ class ASPP(nn.Module):
         self.ASPP2=ASPPConv(in_channels, out_channels, rate2)
         self.ASPP3=ASPPConv(in_channels, out_channels, rate3)
         
-        # self.CBAM1=myCBAM()
-        # self.CBAM2=myCBAM()
-        # self.CBAM3=myCBAM()
+        self.GAU0=GAU()
+        self.GAU1=GAU()
+        self.GAU2=GAU()
+        self.GAU3=GAU()
+        self.GAU4=GAU()
         
         self.ASPPPooling=ASPPPooling(in_channels, out_channels)
 
@@ -164,18 +166,20 @@ class ASPP(nn.Module):
         res = []
         #在三个空洞卷积分支加入channel wise的attention block
         branch0=self.ASPP0(x)
+        branch0=self.GAU0(low_level_feature)*branch0  #return b*c*1*1
         
         branch1=self.ASPP1(x)
-
+        branch1=self.GAU1(low_level_feature)*branch1
         
         branch2=self.ASPP2(x)
-
+        branch2=self.GAU2(low_level_feature)*branch2
         
         branch3=self.ASPP3(x)
-
+        branch3=self.GAU3(low_level_feature)*branch3
         
         branch4=self.ASPPPooling(x)
-
+        branch4=self.GAU4(low_level_feature)*branch4
+        
         res = torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
         
         return self.project(res)
