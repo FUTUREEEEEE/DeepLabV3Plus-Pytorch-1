@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+from network.myPAM import PAM_Module
 
 from .utils import _SimpleSegmentationModel
 
@@ -43,9 +44,11 @@ class DeepLabHeadV3Plus(nn.Module):
             nn.Conv2d(256, num_classes, 1)
         )
         self._init_weight()
+        self.PAM=PAM_Module()
 
     def forward(self, feature):
         low_level_feature = self.project( feature['low_level'] )
+        low_level_feature=self.PAM(low_level_feature)
         output_feature = self.aspp(feature['out'])
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
         return self.classifier( torch.cat( [ low_level_feature, output_feature ], dim=1 ) )
