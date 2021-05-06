@@ -175,14 +175,35 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
     with torch.no_grad():
         for i, (images, labels) in tqdm(enumerate(loader)):
             
-            images = images.to(device, dtype=torch.float32)
-            labels = labels.to(device, dtype=torch.long)
+            N, _, H, W = images.shape
+            size = labels.size()[-2:]
+            preds_mult=0
+            for rate in [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]:
+                
+                sH, sW = int(rate * H), int(rate * W)
+                im_sc = nn.functional.interpolate(images, size=(sH, sW),
+                        mode='bilinear', align_corners=True)
+                #print("im_sc:",im_sc.shape)
+                im_sc = im_sc.to(device, dtype=torch.float32)
+                labels = labels.to(device, dtype=torch.long)
+                
+                outputs = model(im_sc)
+                preds = nn.functional.interpolate(outputs, size=size,
+                            mode='bilinear', align_corners=True)
+                #print("preds0:",preds.shape)
+                preds = preds.detach().max(dim=1)[1].cpu().numpy()
+                targets = labels.cpu().numpy()
+                
+                #print("preds:",preds.shape,type(preds))
+                
+                preds_mult+=preds
+                
+            preds_mult=preds_mult/6
+            #print("preds_mult0",(preds_mult.shape))
+            #preds_mult = torch.argmax(preds_mult, dim=1)
+            #print("preds_mult",(preds_mult.shape))
 
-            outputs = model(images)
-            preds = outputs.detach().max(dim=1)[1].cpu().numpy()
-            targets = labels.cpu().numpy()
-
-            metrics.update(targets, preds)
+            metrics.update(targets, np.int64(preds_mult))
             if ret_samples_ids is not None and i in ret_samples_ids:  # get vis samples
                 ret_samples.append(
                     (images[0].detach().cpu().numpy(), targets[0], preds[0]))
