@@ -174,7 +174,7 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
 
     with torch.no_grad():
         for i, (images, labels) in tqdm(enumerate(loader)):
-            
+            #print("dateload",torch.cuda.memory_snapshot())
             N, _, H, W = images.shape
             size = labels.size()[-2:]
             preds_mult=0
@@ -183,35 +183,38 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                 sH, sW = int(rate * H), int(rate * W)
                 im_sc = nn.functional.interpolate(images, size=(sH, sW),
                         mode='bilinear', align_corners=True)
-                #print("im_sc:",im_sc.shape)
+
                 im_sc = im_sc.to(device, dtype=torch.float32)
                 labels = labels.to(device, dtype=torch.long)
-                
+                #print("dateto 0",torch.cuda.memory_snapshot())
                 outputs = model(im_sc)
+                if False:
+                    #print("before",torch.cuda.memory_summary(device=None, abbreviated=True))
+                    outputs=outputs.cpu()
+                    print("after",torch.cuda.memory_snapshot())
+
+                    inputs_batched_flip = torch.flip(im_sc,[3]) 
+                    predicts_flip = torch.flip(model(inputs_batched_flip),[3]).to(0)
+                    predicts_batched_flip = predicts_flip.clone()
+                    del predicts_flip
+
+                    outputs=outputs.to(0)
+                    outputs = (outputs + predicts_batched_flip) / 2.0   					
+                    
                 preds = nn.functional.interpolate(outputs, size=size,
                             mode='bilinear', align_corners=True)
-                #print("preds0:",preds.shape)
-
-                
+           
                 targets = labels.cpu().numpy()
 
                 preds_mult+=preds
 
                 del preds
-                #preds = preds.detach().max(dim=1)[1].cpu().numpy()
-                
-                
-                #print("preds:",preds.shape,type(preds))
-                
-                
-            
+
 
             preds_mult=preds_mult/6
 
             preds_mult=torch.argmax(preds_mult, dim=1).cpu().numpy().astype(np.int64)
-            #print("preds_mult0",(preds_mult.shape))
-            #preds_mult = torch.argmax(preds_mult, dim=1)
-            #print("preds_mult",(preds_mult.shape))
+
 
             metrics.update(targets, preds_mult)
             if ret_samples_ids is not None and i in ret_samples_ids:  # get vis samples
