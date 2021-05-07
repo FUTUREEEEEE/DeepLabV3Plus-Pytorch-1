@@ -191,19 +191,29 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                 preds = nn.functional.interpolate(outputs, size=size,
                             mode='bilinear', align_corners=True)
                 #print("preds0:",preds.shape)
-                preds = preds.detach().max(dim=1)[1].cpu().numpy()
+
+                
                 targets = labels.cpu().numpy()
+
+                preds_mult+=preds
+
+                del preds
+                #preds = preds.detach().max(dim=1)[1].cpu().numpy()
+                
                 
                 #print("preds:",preds.shape,type(preds))
                 
-                preds_mult+=preds
                 
+            
+
             preds_mult=preds_mult/6
+
+            preds_mult=torch.argmax(preds_mult, dim=1).cpu().numpy().astype(np.int64)
             #print("preds_mult0",(preds_mult.shape))
             #preds_mult = torch.argmax(preds_mult, dim=1)
             #print("preds_mult",(preds_mult.shape))
 
-            metrics.update(targets, np.int64(preds_mult))
+            metrics.update(targets, preds_mult)
             if ret_samples_ids is not None and i in ret_samples_ids:  # get vis samples
                 ret_samples.append(
                     (images[0].detach().cpu().numpy(), targets[0], preds[0]))
