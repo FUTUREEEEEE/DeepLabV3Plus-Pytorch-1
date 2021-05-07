@@ -429,7 +429,6 @@ def main():
                     best_score = val_score['Mean IoU']
                     save_ckpt('checkpoints/best_%s_%s_os%d.pth' %
                               (opts.model, opts.dataset,opts.output_stride))
-                    print( "lr: " "%.10f" % (optimizer.state_dict()['param_groups'][0]['lr']))
                     #save to dirve
                 os.system("cp -f /content/checkpoints/* "+ opts.ckpt_dir+"/pth/")
                 os.system("cp -f /content/log/* "+ opts.ckpt_dir+"/log/")
