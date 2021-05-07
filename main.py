@@ -65,7 +65,7 @@ def get_argparser():
                         help='crop validation (default: False)')
     parser.add_argument("--batch_size", type=int, default=16,
                         help='batch size (default: 16)')
-    parser.add_argument("--val_batch_size", type=int, default=4,
+    parser.add_argument("--val_batch_size", type=int, default=2,
                         help='batch size for validation (default: 4)')
     parser.add_argument("--crop_size", type=int, default=513)
     
@@ -185,32 +185,32 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                         mode='bilinear', align_corners=True)
 
                 im_sc = im_sc.to(device, dtype=torch.float32)
-                labels = labels.to(device, dtype=torch.long)
+                #labels = labels.to(device, dtype=torch.long)
                 #print("dateto 0",torch.cuda.memory_snapshot())
                 outputs = model(im_sc)
-                if False:
+                if True:
                     #print("before",torch.cuda.memory_summary(device=None, abbreviated=True))
-                    outputs=outputs.cpu()
-                    print("after",torch.cuda.memory_snapshot())
+                    #outputs=outputs.cpu()
+                    #print("after",torch.cuda.memory_snapshot())
 
                     inputs_batched_flip = torch.flip(im_sc,[3]) 
                     predicts_flip = torch.flip(model(inputs_batched_flip),[3]).to(0)
                     predicts_batched_flip = predicts_flip.clone()
                     del predicts_flip
 
-                    outputs=outputs.to(0)
+                    #outputs=outputs.to(0)
                     outputs = (outputs + predicts_batched_flip) / 2.0   					
                     
                 preds = nn.functional.interpolate(outputs, size=size,
                             mode='bilinear', align_corners=True)
            
-                targets = labels.cpu().numpy()
+                
 
                 preds_mult+=preds
 
                 del preds
 
-
+            targets = labels.cpu().numpy()
             preds_mult=preds_mult/6
 
             preds_mult=torch.argmax(preds_mult, dim=1).cpu().numpy().astype(np.int64)
@@ -248,6 +248,7 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
 
         score = metrics.get_results()
     return score, ret_samples
+
 
 
 def main():
@@ -415,7 +416,6 @@ def main():
                 print("Epoch %d, Itrs %d/%d, Loss=%f" %
                       (cur_epochs, cur_itrs, opts.total_itrs, interval_loss))
                 interval_loss = 0.0
-                
 
             if (cur_itrs) % opts.val_interval == 0:
                 save_ckpt('checkpoints/latest_%s_%s_os%d.pth' %
