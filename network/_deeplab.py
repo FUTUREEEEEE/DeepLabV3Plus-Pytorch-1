@@ -66,8 +66,8 @@ class DeepLabHeadV3Plus(nn.Module):
         #除了ASPPpooling 其余分支均加入CAM
         branch0=self.CAM0(branch0)
         branch1=self.CAM1(branch1)
-        branch2=self.CAM2(branch2)
-        branch3=self.CAM3(branch3)
+        #branch2=self.CAM2(branch2)
+        #branch3=self.CAM3(branch3)
         
         output_feature=torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
         output_feature= self.project_aspp(output_feature)
