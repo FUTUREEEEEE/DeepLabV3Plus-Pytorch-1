@@ -25,16 +25,16 @@ class FPN_Module(nn.Module):
             nn.ReLU(inplace=True),
         )
         
+
+        self.convfeat2= nn.Sequential( 
+            nn.Conv2d(512, 256, 1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True)
+        )
         
         self.convfeat3 = nn.Sequential( 
             nn.Conv2d(1024, 512, 1, bias=False),
             nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True)
-        )
-        
-        self.convfeat2= nn.Sequential( 
-            nn.Conv2d(512, 256, 1, bias=False),
-            nn.BatchNorm2d(256),
             nn.ReLU(inplace=True)
         )
         
@@ -45,13 +45,14 @@ class FPN_Module(nn.Module):
         feat3=F.interpolate(feature['feat3'], scale_factor=2, mode='bilinear', align_corners=False)
         feat3=self.convfeat3(feat3)
         
-        feat2=feature['feat2'] +feat3
+        feat2=self.convfeat2(feature['feat2'])
+        feat2= feat2+feat3
         feat2=F.interpolate(feat2, scale_factor=2, mode='bilinear', align_corners=False)
-        feat2=self.convfeat2(feat2)
         
         
-        feat1=feature['low_level']+feat2
-        feat1=self.project(feat1)
+        feat1=self.project(feature['low_level'])
+        feat1=feat1+feat2
+        
         
 
     
