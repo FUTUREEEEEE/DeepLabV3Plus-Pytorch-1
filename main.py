@@ -65,7 +65,7 @@ def get_argparser():
                         help='crop validation (default: False)')
     parser.add_argument("--batch_size", type=int, default=16,
                         help='batch size (default: 16)')
-    parser.add_argument("--val_batch_size", type=int, default=2,
+    parser.add_argument("--val_batch_size", type=int, default=1,
                         help='batch size for validation (default: 4)')
     parser.add_argument("--crop_size", type=int, default=513)
     
@@ -217,33 +217,26 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
 
 
             metrics.update(targets, preds_mult)
-            if ret_samples_ids is not None and i in ret_samples_ids:  # get vis samples
-                ret_samples.append(
-                    (images[0].detach().cpu().numpy(), targets[0], preds[0]))
+
 
             if opts.save_val_results:
-                for i in range(len(images)):
-                    image = images[i].detach().cpu().numpy()
-                    target = targets[i]
-                    pred = preds[i]
+                    #print(type(images))
+                    #print(images.shape)
+                    
 
-                    image = (denorm(image) * 255).transpose(1, 2, 0).astype(np.uint8)
-                    target = loader.dataset.decode_target(target).astype(np.uint8)
-                    pred = loader.dataset.decode_target(pred).astype(np.uint8)
+                    images = (torch.squeeze(images)).numpy()
+                    targets =np.squeeze((targets))
+                    preds_mult = np.squeeze(preds_mult)
+
+                    image = (denorm(images) * 255).transpose(1, 2, 0).astype(np.uint8)
+                    target = loader.dataset.decode_target(targets).astype(np.uint8)
+                    pred = loader.dataset.decode_target(preds_mult).astype(np.uint8)
 
                     Image.fromarray(image).save('results/%d_image.png' % img_id)
                     Image.fromarray(target).save('results/%d_target.png' % img_id)
                     Image.fromarray(pred).save('results/%d_pred.png' % img_id)
 
-                    fig = plt.figure()
-                    plt.imshow(image)
-                    plt.axis('off')
-                    plt.imshow(pred, alpha=0.7)
-                    ax = plt.gca()
-                    ax.xaxis.set_major_locator(matplotlib.ticker.NullLocator())
-                    ax.yaxis.set_major_locator(matplotlib.ticker.NullLocator())
-                    plt.savefig('results/%d_overlay.png' % img_id, bbox_inches='tight', pad_inches=0)
-                    plt.close()
+
                     img_id += 1
 
         score = metrics.get_results()
@@ -289,7 +282,7 @@ def main():
     train_loader = data.DataLoader(
         train_dst, batch_size=opts.batch_size, shuffle=True, num_workers=2)
     val_loader = data.DataLoader(
-        val_dst, batch_size=opts.val_batch_size, shuffle=True, num_workers=2)
+        val_dst, batch_size=opts.val_batch_size, shuffle=False, num_workers=2)
     print("Dataset: %s, Train set: %d, Val set: %d" %
           (opts.dataset, len(train_dst), len(val_dst)))
 
