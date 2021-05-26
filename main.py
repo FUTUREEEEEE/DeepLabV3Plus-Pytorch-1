@@ -213,6 +213,30 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                     img_id += 1
 
         score = metrics.get_results()
+        print(score["Class IoU"])
+        sdict=score["Class IoU"]
+        sdict["tunnel/rail track/parking/ground/dynamic/static/out of roivoid/ego vehicle/rectification border"]=sdict.pop(0)
+        sdict["road"]=sdict.pop(1)
+        sdict["sidewalk"]=sdict.pop(2)
+        sdict["building"]=sdict.pop(3)
+        sdict["wall"]=sdict.pop(4)
+        sdict["fence"]=sdict.pop(5)
+        sdict["pole"]=sdict.pop(6)
+        sdict["traffic light"]=sdict.pop(7)
+        sdict["traffic sign"]=sdict.pop(8)
+        sdict["vegetation"]=sdict.pop(9)
+        sdict["terrain"]=sdict.pop(10)
+        sdict["sky"]=sdict.pop(11)
+        sdict["person"]=sdict.pop(12)
+        sdict["rider"]=sdict.pop(13)
+        sdict["car"]=sdict.pop(14)
+        sdict["truck"]=sdict.pop(15)
+        sdict["bus"]=sdict.pop(16)
+        sdict["train"]=sdict.pop(17)
+        sdict["motorcycle"]=sdict.pop(18)
+        for key,value in sdict.items():
+          print(str(key)+": "+str(value))
+        #print("here")
     return score, ret_samples
 
 
