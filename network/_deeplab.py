@@ -146,11 +146,11 @@ class ASPP(nn.Module):
         self.ASPP2=ASPPConv(in_channels, out_channels, rate2)
         self.ASPP3=ASPPConv(in_channels, out_channels, rate3)
         
-        self.se1=myse()
-        self.se2=myse()
-        self.se3=myse()
-        self.se4=myse()
-        self.se0=myse()
+        self.se1=SELayer(256)
+        self.se2=SELayer(256)
+        self.se3=SELayer(256)
+        self.se4=SELayer(256)
+        self.se0=SELayer(256)
         
         self.ASPPPooling=ASPPPooling(in_channels, out_channels)
 
