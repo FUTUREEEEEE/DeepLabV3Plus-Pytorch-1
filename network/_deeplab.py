@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from network.myCBAM import myCBAM
+from network.myse import SELayer
 
 from .utils import _SimpleSegmentationModel
 
@@ -146,9 +146,11 @@ class ASPP(nn.Module):
         self.ASPP2=ASPPConv(in_channels, out_channels, rate2)
         self.ASPP3=ASPPConv(in_channels, out_channels, rate3)
         
-        self.CBAM1=myCBAM()
-        self.CBAM2=myCBAM()
-        self.CBAM3=myCBAM()
+        self.se1=myse()
+        self.se2=myse()
+        self.se3=myse()
+        self.se4=myse()
+        self.se0=myse()
         
         self.ASPPPooling=ASPPPooling(in_channels, out_channels)
 
@@ -164,17 +166,19 @@ class ASPP(nn.Module):
         res = []
         #在三个空洞卷积分支加入channel wise的attention block
         branch0=self.ASPP0(x)
+        branch0=self.se0(branch0)
         
         branch1=self.ASPP1(x)
-        branch1=self.CBAM1(branch1)
+        branch1=self.se1(branch1)
         
         branch2=self.ASPP2(x)
-        branch2=self.CBAM2(branch2)
+        branch2=self.se2(branch2)
         
         branch3=self.ASPP3(x)
-        branch3=self.CBAM3(branch3)
+        branch3=self.se3(branch3)
         
         branch4=self.ASPPPooling(x)
+        branch4=self.se4(branch4)
 
         res = torch.cat((branch0,branch1,branch2,branch3,branch4), dim=1)
         
